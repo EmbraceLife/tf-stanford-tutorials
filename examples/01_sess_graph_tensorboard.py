@@ -1,49 +1,56 @@
+#############################################
+### Goals:
+# how to use graph?
+# how to use session?
+# how to display nodes in tensorboard?
+
+#######################
+## import
 import tensorflow as tf
 
-# get official default graph
-g1 = tf.get_default_graph()
-# create user graph
-g2 = tf.Graph()
+#######################
+## create a graph
+g1 = tf.get_default_graph() # get official default graph
+g2 = tf.Graph() # create user graph
 
-# using the official default graph to build operations inside
-# tensorboard will plot everything defined inside the graph below
-with g1.as_default():
-	# build a scope box to separate ops
-	with tf.variable_scope('ops1'):
-		a = tf.constant(3, name="a")
+#######################
+## create nodes in a graph
+with g1.as_default(): # specify which graph to use
+
+	with tf.variable_scope('ops1'): # create a box inside graph
+		a = tf.constant(3, name="a") # create a node
 		c = tf.constant(5, name="c")
-		op1 = tf.add(a, c, name="add")
+		op1 = tf.add(x=a, y=c, name="add1") # create an operation on nodes
 
 	with tf.variable_scope('ops3-5'):
-		x = 2 # everything inside graph is made a tensor (constant in this case)
+		x = 2 # even a scalar int is a node tensor too
 		y = 3
-		op3 = tf.add(x, y)
-		op4 = tf.multiply(x, y, name="add2")
-		useless = tf.multiply(x, op1, name="multiply")
-		op5 = tf.pow(op3, op4)
+		op3 = tf.add(x, y, name="add2")
+		op4 = tf.multiply(x, y, name="multiply1")
+		useless = tf.multiply(x, op1, name="multiply2")
+		op5 = tf.pow(op3, op4, name="power")
 
-
-# add ops to the user created graph
-with g2.as_default():
+with g2.as_default(): # specify a different graph
 	b = tf.constant(5, name="b")
 	d = tf.constant(6, name="d")
 	op2 = tf.add(b, d, name="add3")
-	# op3 = tf.add(a, b) # item must from the same graph
 
 
-# using the official graph
+
+#######################
+## create a session based on a graph
 sess = tf.Session(graph=g1)
-# Create the summary writer after graph definition and before running your session
-writer = tf.summary.FileWriter('./log/01_default_op1', sess.graph)
-sess.run(op1) # op3-5 is not run, but still on graph display
+writer = tf.summary.FileWriter('./log/01_default_op1',
+											sess.graph) # plot graph
+sess.run(op1) # as long as nodes are used by an op, they will be displayed, even though the ops are not run in session
 sess.close()
-# todo: when do we really need to use it?
 writer.close()
+# tensorboard --logdir log/01_default_op1
 
-
-# using the user graph
+## create a new session on a user graph
 sess = tf.Session(graph=g2)
 writer = tf.summary.FileWriter('./log/01_user', sess.graph)
 sess.run(op2)
 sess.close()
 writer.close()
+# tensorboard --logdir log/01_user
