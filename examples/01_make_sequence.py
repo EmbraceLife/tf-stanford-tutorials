@@ -4,7 +4,7 @@
 ## tf.linspace(
 # 			start = tensor, can be value, vector, matrix, list, array
 # 			stop = tensor, must be float32 or float64, last entry
-# 			number = tensor, must int32, int64
+# 			num = tensor, must int32, int64
 # 			name = optional
 # )
 
@@ -34,3 +34,17 @@ with tf.Session(graph=g1) as sess:
 	sess.run(sq1)
 
 writer.close()
+
+#########################
+## np.linspace, range can do iteration, not tf.linspace or tf.range
+for _ in np.linspace(0, 10, 4): # OK
+	pass
+
+for _ in tf.linspace(0, 10, 4): # TypeError("'Tensor' object is not iterable.")
+	pass
+
+for _ in range(4): # OK
+	pass
+
+for _ in tf.range(4): # TypeError("'Tensor' object is not iterable.")
+	pass
